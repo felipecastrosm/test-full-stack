@@ -1,0 +1,248 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  superformula-user-api
+
+Transform:
+- AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: nodejs10.x
+    Timeout: 180
+    Environment:
+      Variables:
+        DYNAMO_TABLE: !Ref DynamoDBUserTable
+        DB_ENDPOINT: http://dynamodb.us-east-2.amazonaws.com
+        REGION_NAME: us-east-2
+
+Resources:
+#DynamoDB
+  DynamoDBUserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: sf-users
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "name"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        - IndexName: "name-idx"
+          KeySchema:
+            - AttributeName: "name"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  DynamoDBRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: appsync-dynamodb-role
+      ManagedPolicyArns:
+        - Ref: AppSyncDynamoDBPolicy
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+    DependsOn:
+      - AppSyncDynamoDBPolicy
+
+  AppSyncDynamoDBPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Managed policy to allow AWS AppSync to access the tables created by this template.
+      Path: /appsync/
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+              - dynamodb:UpdateItem
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:BatchGetItem
+              - dynamodb:BatchWriteItem
+            Resource: !Join [ "", [ !GetAtt DynamoDBUserTable.Arn, "*" ] ]
+
+#GraphQL API
+  UserGraphQLApi:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: Superformula User API
+      AuthenticationType: API_KEY
+
+  UserGraphQLApiKey:
+    Type: AWS::AppSync::ApiKey
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+
+  UserGraphQLApiSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+      DefinitionS3Location: "./user.graphql"
+
+  UserTableDataSource:
+    Type: "AWS::AppSync::DataSource"
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+      Name: sf_users
+      Description: "The Notes Table AppSync Data Source"
+      Type: AMAZON_DYNAMODB
+      ServiceRoleArn: !GetAtt DynamoDBRole.Arn
+      DynamoDBConfig:
+        TableName: !Ref DynamoDBUserTable
+        AwsRegion: us-east-2
+
+#GraphQL Resolvers
+  GetUsersQueryResolver:
+    Type: "AWS::AppSync::Resolver"
+    DependsOn: UserGraphQLApiSchema
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+      TypeName: Query
+      FieldName: users
+      DataSourceName: !GetAtt UserTableDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Query",
+          "query": {
+            "expression": "#username = :name",
+            "expressionValues": {
+              ":name": $util.dynamodb.toDynamoDBJson($ctx.args.filter.name)
+            },
+            "expressionNames": {
+              "#username": "name"
+            }
+          },
+          "index": "name-idx",
+          "limit": $util.defaultIfNull(${ctx.args.limit}, 20),
+          "nextToken": $util.toJson(${ctx.args.nextToken})
+        }
+      ResponseMappingTemplate: |
+        {
+          "users": $util.toJson($ctx.result.items),
+          "nextToken": $util.toJson(${ctx.result.nextToken})
+        }
+
+  GetUserQueryResolver:
+    Type: "AWS::AppSync::Resolver"
+    DependsOn: UserGraphQLApiSchema
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+      TypeName: Query
+      FieldName: user
+      DataSourceName: !GetAtt UserTableDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "GetItem",
+          "key": {
+            "id": $util.dynamodb.toDynamoDBJson($ctx.args.id)
+          }
+        }
+      ResponseMappingTemplate: "$util.toJson($ctx.result)"
+
+  CreateUserMutationResolver:
+    Type: "AWS::AppSync::Resolver"
+    DependsOn: UserGraphQLApiSchema
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+      TypeName: Mutation
+      FieldName: createUser
+      DataSourceName: !GetAtt UserTableDataSource.Name
+      RequestMappingTemplate: |
+        #set($ctx.args.user.createdAt = $util.time.nowISO8601())
+        {
+          "version": "2017-02-28",
+          "operation": "PutItem",
+          "key": {
+            "id": $util.dynamodb.toDynamoDBJson($util.autoId())
+          },
+          "attributeValues": $util.dynamodb.toMapValuesJson($ctx.args.user)
+        }
+      ResponseMappingTemplate: "$util.toJson($ctx.result)"
+
+  UpdateUserMutationResolver:
+    Type: "AWS::AppSync::Resolver"
+    DependsOn: UserGraphQLApiSchema
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+      TypeName: Mutation
+      FieldName: updateUser
+      DataSourceName: !GetAtt UserTableDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2018-05-29",
+          "operation": "UpdateItem",
+          "key": {
+            "id": $util.dynamodb.toDynamoDBJson($ctx.args.id)
+          },
+          "update": {
+            "expression": "SET #username = :name, dob = :dob, address = :address, description = :description, updatedAt = :updatedAt",
+            "expressionValues": {
+              ":name": $util.dynamodb.toDynamoDBJson($ctx.args.user.name),
+              ":dob": $util.dynamodb.toDynamoDBJson($ctx.args.user.dob),
+              ":address": $util.dynamodb.toDynamoDBJson($ctx.args.user.address),
+              ":description": $util.dynamodb.toDynamoDBJson($ctx.args.user.description),
+              ":updatedAt": $util.dynamodb.toDynamoDBJson($util.time.nowISO8601())
+            },
+            "expressionNames": {
+              "#username": "name"
+            }
+          },
+          "condition": {
+            "expression": "attribute_exists(id)"
+          }
+        }
+      ResponseMappingTemplate: |
+        #if ( $ctx.error &&  $ctx.error.type.equals("DynamoDB:ConditionalCheckFailedException"))
+          #return
+        #else
+          $util.toJson($ctx.result)
+        #end
+
+  DeleteUserMutationResolver:
+    Type: "AWS::AppSync::Resolver"
+    DependsOn: UserGraphQLApiSchema
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+      TypeName: Mutation
+      FieldName: deleteUser
+      DataSourceName: !GetAtt UserTableDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "DeleteItem",
+          "key": {
+            "id": $util.dynamodb.toDynamoDBJson($ctx.args.id)
+          }
+        }
+      ResponseMappingTemplate: "$util.toJson($ctx.result)"
+
+Outputs:
+  APIKey:
+    Description: API Key
+    Value: !GetAtt UserGraphQLApiKey.ApiKey
+
+  GraphQL:
+    Description: GraphQL URL
+    Value: !GetAtt UserGraphQLApi.GraphQLUrl
