@@ -1,0 +1,41 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    user(id: ID!) : User
+    users(filter: UserFilter, limit: Int, nextToken: String): UsersConnection!
+}
+
+type Mutation {
+    createUser(user: UserInput!): User!
+    updateUser(id: ID!, user: UserInput!): User
+    deleteUser(id: ID!): User
+}
+
+type User {
+    id: ID!
+    name: String!
+    dob: AWSDate!
+    address: String!
+    description: String!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime
+}
+
+type UsersConnection {
+    users: [User]!
+    nextToken: String
+}
+
+input UserFilter {
+    name: String
+}
+
+input UserInput {
+    name: String!
+    dob: AWSDate!
+    address: String!
+    description: String!
+}
