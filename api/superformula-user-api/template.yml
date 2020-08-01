@@ -42,6 +42,8 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: "NEW_IMAGE"
 
   DynamoDBRole:
     Type: AWS::IAM::Role
@@ -80,6 +82,58 @@ Resources:
               - dynamodb:BatchGetItem
               - dynamodb:BatchWriteItem
             Resource: !Join [ "", [ !GetAtt DynamoDBUserTable.Arn, "*" ] ]
+
+#ElasticSearch
+  ElasticSearchUserDomain:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      DomainName: sf-users
+      ElasticsearchClusterConfig:
+        InstanceCount: '1'
+        InstanceType: t2.small.elasticsearch
+      ElasticsearchVersion: 7.7
+      EBSOptions:
+        EBSEnabled: true
+        VolumeSize: 10
+        VolumeType: gp2
+
+  ElasticSearchSyncLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: sf-users-dependencies
+      ContentUri: functions/layers
+      CompatibleRuntimes:
+        - nodejs12.x
+        - nodejs10.x
+      RetentionPolicy: Retain
+
+  ElasticSearchSyncLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../output
+      Handler: dynamodb-to-elasticsearch.handler
+      Layers:
+        - !Ref ElasticSearchSyncLambdaLayer
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - es:ESHttpPut
+                - es:ESHttpPost
+                - es:ESHttpGet
+                - es:ESHttpDelete
+              Resource: !Join ["/", [!GetAtt ElasticSearchUserDomain.Arn, "*"]]
+      Events:
+        DDBEvent:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt DynamoDBUserTable.StreamArn
+            StartingPosition: TRIM_HORIZON
+      Environment:
+        Variables:
+          esUrl: !GetAtt ElasticSearchUserDomain.DomainEndpoint
 
 #GraphQL API
   UserGraphQLApi:

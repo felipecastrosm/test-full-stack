@@ -19,6 +19,20 @@ Make sure you have `aws-cli` configured with the credentials of a user allowing 
 * `AmazonDynamoDBFullAccess`
 * `AWSAppSyncAdministrator`
 * `AWSCloudFormationFullAccess`
+* `ElasticsearchFullAccess`
+    * ```json
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "VisualEditor0",
+                    "Effect": "Allow",
+                    "Action": "es:*",
+                    "Resource": "*"
+                }
+            ]
+        }
+        ```
 
 To configure `aws-cli` just run:
 
