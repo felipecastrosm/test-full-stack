@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "aws-sdk": "^2.725.0",
+    "elasticsearch": "^16.7.1",
+    "http-aws-es": "^6.0.0"
+  }
+}
