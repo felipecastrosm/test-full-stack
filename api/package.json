@@ -7,7 +7,7 @@
     "awss3:init": "aws s3api create-bucket --bucket superformula-api-deploy --region us-east-2 --create-bucket-configuration LocationConstraint=us-east-2",
     "sam:package": "sam package --template template.yml --output-template-file cloudformation.yml --s3-bucket superformula-api-deploy --region us-east-2",
     "sam:deploy": "sam deploy --template-file cloudformation.yml --stack-name superformula-api --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_NAMED_IAM --region us-east-2",
-    "push": "npm run test && npm run lambda:layer:install && npm run compile && npm run sam:package && npm run sam:deploy",
+    "push": "npm i && npm run test && npm run lambda:layer:install && npm run compile && npm run sam:package && npm run sam:deploy",
     "clean": "aws cloudformation delete-stack --stack-name superformula-api --region us-east-2 && aws cloudformation wait stack-delete-complete --stack-name superformula-api",
     "test": "jest",
     "compile": "tsc",
