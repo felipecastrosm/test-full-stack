@@ -3,6 +3,7 @@ const index = 'user';
 
 import { createAWSConnection, awsCredsifyAll, awsGetCredentials } from '@acuris/aws-es-connection';
 import { Client } from "@elastic/elasticsearch";
+import { DynamoDB } from "aws-sdk";
 
 import {
     DynamoDBStreamEvent,
@@ -31,7 +32,7 @@ export const handler = async (event: DynamoDBStreamEvent, _context: Context) => 
             });
             console.log(`Item ${id} removed`);
         } else {
-            const document = record.dynamodb.NewImage;
+            const document = DynamoDB.Converter.unmarshall(record.dynamodb.NewImage);
             console.log(`Adding document ${id}`);
             console.log(document);
 

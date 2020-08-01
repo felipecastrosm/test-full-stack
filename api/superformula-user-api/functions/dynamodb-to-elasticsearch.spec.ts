@@ -1,9 +1,6 @@
 import { handler } from "./dynamodb-to-elasticsearch";
 
 import { Client } from '@elastic/elasticsearch';
-// import Mock from '@elastic/elasticsearch-mock';
-// const elasticsearchMock = new Mock();
-// const elasticsearchConnection = elasticsearchMock.getConnection();
 
 jest.mock('@elastic/elasticsearch');
 
@@ -17,7 +14,9 @@ const baseEvent = {
                     }
                 },
                 NewImage: {
-                    sample_field: {}
+                    sample_field: {
+                        S: ""
+                    }
                 }
             },
             eventName: "INSERT" as 'INSERT' | 'MODIFY' | 'REMOVE'
@@ -37,7 +36,7 @@ test("Adds new record to Elasticsearch", async () => {
 
     //Assert
     expect(Client.prototype.index).toHaveBeenCalledTimes(1);
-    expect(Client.prototype.index).toHaveBeenCalledWith({id: "sample_id", index: "user", body: { sample_field: {}}});
+    expect(Client.prototype.index).toHaveBeenCalledWith({id: "sample_id", index: "user", body: { sample_field: ""}});
 });
 
 test("Updates record on Elasticsearch", async () => {
@@ -52,7 +51,7 @@ test("Updates record on Elasticsearch", async () => {
 
     //Assert
     expect(Client.prototype.index).toHaveBeenCalledTimes(1);
-    expect(Client.prototype.index).toHaveBeenCalledWith({id: "sample_id", index: "user", body: { sample_field: {}}});
+    expect(Client.prototype.index).toHaveBeenCalledWith({id: "sample_id", index: "user", body: { sample_field: ""}});
 });
 
 test("Removes record from Elasticsearch", async () => {
