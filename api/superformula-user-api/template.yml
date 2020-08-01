@@ -42,6 +42,8 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: "NEW_IMAGE"
 
   DynamoDBRole:
     Type: AWS::IAM::Role
@@ -81,6 +83,102 @@ Resources:
               - dynamodb:BatchWriteItem
             Resource: !Join [ "", [ !GetAtt DynamoDBUserTable.Arn, "*" ] ]
 
+#ElasticSearch
+  ElasticSearchUserDomain:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      DomainName: sf-users
+      ElasticsearchClusterConfig:
+        InstanceCount: '1'
+        InstanceType: t2.small.elasticsearch
+      ElasticsearchVersion: 7.7
+      EBSOptions:
+        EBSEnabled: true
+        VolumeSize: 10
+        VolumeType: gp2
+
+  ElasticSearchSyncLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: sf-users-dependencies
+      ContentUri: functions/layers
+      CompatibleRuntimes:
+        - nodejs12.x
+        - nodejs10.x
+      RetentionPolicy: Retain
+
+#Lambda
+  ElasticSearchSyncLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../output
+      Handler: dynamodb-to-elasticsearch.handler
+      Layers:
+        - !Ref ElasticSearchSyncLambdaLayer
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - es:ESHttpPut
+                - es:ESHttpPost
+                - es:ESHttpGet
+                - es:ESHttpDelete
+              Resource: !Join ["/", [!GetAtt ElasticSearchUserDomain.Arn, "*"]]
+      Events:
+        DDBEvent:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt DynamoDBUserTable.StreamArn
+            StartingPosition: TRIM_HORIZON
+      Environment:
+        Variables:
+          esUrl: !GetAtt ElasticSearchUserDomain.DomainEndpoint
+
+  UserSearchLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../output
+      Handler: user-search.handler
+      Layers:
+        - !Ref ElasticSearchSyncLambdaLayer
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - es:ESHttpPut
+                - es:ESHttpPost
+                - es:ESHttpGet
+                - es:ESHttpDelete
+              Resource: !Join ["/", [!GetAtt ElasticSearchUserDomain.Arn, "*"]]
+      Environment:
+        Variables:
+          esUrl: !GetAtt ElasticSearchUserDomain.DomainEndpoint
+
+  LambdaAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: allow-access-to-lambda-from-appsync
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: lambda:invokeFunction
+                Resource:
+                  - !GetAtt UserSearchLambda.Arn
+                  - !Join ['', [!GetAtt UserSearchLambda.Arn, ':*']]
+
 #GraphQL API
   UserGraphQLApi:
     Type: AWS::AppSync::GraphQLApi
@@ -111,6 +209,16 @@ Resources:
         TableName: !Ref DynamoDBUserTable
         AwsRegion: us-east-2
 
+  UserSearchLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+      Name: user_search
+      Type: AWS_LAMBDA
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt UserSearchLambda.Arn
+      ServiceRoleArn: !GetAtt LambdaAccessRole.Arn
+
 #GraphQL Resolvers
   GetUsersQueryResolver:
     Type: "AWS::AppSync::Resolver"
@@ -119,29 +227,14 @@ Resources:
       ApiId: !GetAtt UserGraphQLApi.ApiId
       TypeName: Query
       FieldName: users
-      DataSourceName: !GetAtt UserTableDataSource.Name
+      DataSourceName: !GetAtt UserSearchLambdaDataSource.Name
       RequestMappingTemplate: |
         {
           "version": "2017-02-28",
-          "operation": "Query",
-          "query": {
-            "expression": "#username = :name",
-            "expressionValues": {
-              ":name": $util.dynamodb.toDynamoDBJson($ctx.args.filter.name)
-            },
-            "expressionNames": {
-              "#username": "name"
-            }
-          },
-          "index": "name-idx",
-          "limit": $util.defaultIfNull(${ctx.args.limit}, 20),
-          "nextToken": $util.toJson(${ctx.args.nextToken})
+          "operation": "Invoke",
+          "payload": $utils.toJson($ctx.args)
         }
-      ResponseMappingTemplate: |
-        {
-          "users": $util.toJson($ctx.result.items),
-          "nextToken": $util.toJson(${ctx.result.nextToken})
-        }
+      ResponseMappingTemplate: $util.toJson($ctx.result)
 
   GetUserQueryResolver:
     Type: "AWS::AppSync::Resolver"
