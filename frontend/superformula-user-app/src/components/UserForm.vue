@@ -4,7 +4,7 @@
     <h1 v-if="!userData.id">Create User</h1>
     <div class="user-form-left">
       <div class="user-form-map">
-        <user-form-map></user-form-map>
+        <user-form-map :coordinates="coordinates"></user-form-map>
       </div>
       <button v-if="userData.id" @click="deleteUser">Remove</button>
     </div>
@@ -35,6 +35,7 @@ import userCreateMutation from "@/graphql/UserCreateMutation";
 import userUpdateMutation from "@/graphql/UserUpdateMutation";
 import userDeleteMutation from "@/graphql/UserDeleteMutation";
 import userSearchQuery from "@/graphql/UserSearchQuery";
+import locationSearchQuery from "@/graphql/LocationSearchQuery";
 import UserFormMap from "@/components/UserFormMap";
 
 export default {
@@ -70,8 +71,31 @@ export default {
   },
   data() {
     return {
-      loaded: false
+      loaded: false,
+      coordinates: []
     };
+  },
+  apollo: {
+    location: {
+      query: locationSearchQuery,
+      variables() {
+        return {
+          locationInput: {
+            location: this.userData.address
+          }
+        };
+      },
+      fetchPolicy: "cache-and-network",
+      debounce: 1000,
+      result({ data, loading, error }) {
+        if (!loading && !error && data) {
+          this.coordinates = data.location.coordinates;
+        }
+      },
+      error(error) {
+        console.error("We've got an error!", error);
+      }
+    }
   },
   methods: {
     createUser() {
