@@ -4,7 +4,7 @@
     <h1 v-if="!userData.id">Create User</h1>
     <div class="user-form-left">
       <div class="user-form-map">
-
+        <user-form-map></user-form-map>
       </div>
       <button v-if="userData.id" @click="deleteUser">Remove</button>
     </div>
@@ -35,9 +35,11 @@ import userCreateMutation from "@/graphql/UserCreateMutation";
 import userUpdateMutation from "@/graphql/UserUpdateMutation";
 import userDeleteMutation from "@/graphql/UserDeleteMutation";
 import userSearchQuery from "@/graphql/UserSearchQuery";
+import UserFormMap from "@/components/UserFormMap";
+
 export default {
   name: "UserForm",
-  components: { },
+  components: {UserFormMap },
   props: {
     userData: {
       id: {
@@ -234,6 +236,7 @@ export default {
     width: 90%;
     height: 300px;
     margin-bottom: 20px;
-    background-color: blue;
+    border-radius: 10px;
+    overflow: hidden;
   }
 </style>

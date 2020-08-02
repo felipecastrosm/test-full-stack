@@ -12,9 +12,11 @@
     "aws-appsync": "^4.0.0",
     "core-js": "^3.6.5",
     "graphql-tag": "^2.11.0",
+    "mapbox-gl": "^1.11.1",
     "vue": "^2.6.11",
     "vue-apollo": "^3.0.4",
     "vue-js-modal": "^2.0.0-rc.6",
+    "vue-mapbox": "^0.4.1",
     "vue-toast-notification": "^0.4.1"
   },
   "devDependencies": {
