@@ -4,7 +4,11 @@
     <div class="user-image">
       <img src="https://images.unsplash.com/photo-1537815749002-de6a533c64db?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=220&q=80" />
     </div>
-    <h2 class="user-name">{{ user.name }}</h2>
+    <div class="user-info">
+      <h2 class="user-name">{{ user.name }}</h2>
+      <p>created <span>{{ formatDate(user.createdAt) }}</span></p>
+    </div>
+
     <p class="user-description">{{ user.description }}</p>
   </div>
 </template>
@@ -21,6 +25,11 @@ export default {
   methods: {
     edit() {
       this.$emit("edit");
+    },
+    formatDate(dateInput) {
+      const date = new Date(dateInput);
+
+      return `${date.getDay()} ${date.getMonth()} ${date.getFullYear()}`
     }
   }
 }
@@ -31,11 +40,10 @@ export default {
  .user-card {
    background-color: #FFFFFF;
    width: 350px;
-   height: 350px;
-   float: left;
+   height: 320px;
+   position: relative;
    border-radius: 10px;
-   margin-left: 50px;
-   margin-bottom: 50px;
+   margin: auto auto 60px;
  }
 
  .user-card:hover {
@@ -46,22 +54,62 @@ export default {
    display: block;
  }
 
+ .user-card:hover button {
+   display: block;
+ }
+
+ .user-card:hover .user-info p {
+   display: block;
+ }
+
+ .user-card button {
+   position: absolute;
+   top: 10px;
+   right: 10px;
+   display: none;
+ }
+
  .user-image {
    display: inline-block;
-   position: relative;
-   width: 200px;
-   height: 200px;
+   width: 180px;
+   height: 180px;
    overflow: hidden;
    border-radius: 50%;
+   margin-top: 25px;
  }
 
  .user-name {
    font-size: 21px;
+   text-align: left;
+   margin-left: 20px;
+   margin-bottom: 0;
  }
 
  .user-description {
    font-family: 'Source Sans Pro', sans-serif;
    font-size: 16px;
    font-weight: 300;
+   text-align: left;
+   margin-left: 20px;
+   margin-top: 5px;
+ }
+
+ .user-info {
+   height: 45px;
+ }
+
+ .user-info h2 {
+   float:left;
+ }
+
+ .user-info p {
+   float: right;
+   margin-right: 20px;
+   display: none;
+ }
+
+ .user-info p span {
+   color: red;
+   display: inline;
  }
 </style>

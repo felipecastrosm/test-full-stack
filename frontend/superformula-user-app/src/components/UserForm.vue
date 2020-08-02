@@ -1,20 +1,32 @@
 <template>
   <div class="user-form-container">
-    <form method="POST" @submit.prevent>
-      <label>Name</label>
-      <input type="text" name="name" v-model="userData.name">
+    <h1 v-if="userData.id">Edit User</h1>
+    <h1 v-if="!userData.id">Create User</h1>
+    <div class="user-form-left">
+      <div class="user-form-map">
 
-      <label>Address</label>
-      <input type="text" name="address" v-model="userData.address">
-
-      <label>Description</label>
-      <input type="text" name="description" v-model="userData.description">
-
+      </div>
       <button v-if="userData.id" @click="deleteUser">Remove</button>
-      <button v-if="!userData.id" @click="createUser">Save</button>
-      <button v-if="userData.id" @click="updateUser">Save</button>
-      <button @click="clearForm">Cancel</button>
-    </form>
+    </div>
+    <div class="user-form-data">
+      <form method="POST" @submit.prevent>
+        <label>Name</label>
+        <input type="text" name="name" v-model="userData.name">
+
+        <label>Address</label>
+        <input type="text" name="address" v-model="userData.address">
+
+        <label>Description</label>
+        <input type="text" name="description" v-model="userData.description">
+
+        <div class="user-form-buttons">
+          <button class="user-form-save" v-if="!userData.id" @click="createUser">Save</button>
+          <button class="user-form-save" v-if="userData.id" @click="updateUser">Save</button>
+          <button class="user-form-cancel" @click="clearForm">Cancel</button>
+        </div>
+      </form>
+    </div>
+
   </div>
 </template>
 
@@ -156,11 +168,72 @@ export default {
       this.clearForm();
     },
     clearForm() {
-      this.$emit("cancel");
+      this.$modal.hideAll();
     }
   }
 };
 </script>
 
 <style scoped>
+  .user-form-container {
+    padding: 60px;
+    background-color: #F8F8F8;
+    height: 100%;
+    display: flex;
+  }
+
+  .user-form-container h1 {
+    margin-top: 0;
+    position: absolute;
+  }
+
+  .user-form-data {
+    width: 50%;
+    height: 100%;
+    margin-left:auto;
+    margin-top: 120px;
+  }
+
+  .user-form-data label {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .user-form-data input {
+    width: 100%;
+    border-radius: 10px;
+    border: 2px solid #ECECEC;
+    font-size: 21px;
+    padding-left: 10px;
+    height: 50px;
+    margin-bottom: 25px;
+  }
+
+  .user-form-container button {
+    width: 45%;
+    height: 50px;
+    margin: 0 0 10% 0;
+  }
+
+  .user-form-save {
+    float: left;
+  }
+
+  .user-form-cancel {
+    float: right;
+  }
+
+  .user-form-left {
+    width: 50%;
+    margin-top: 120px;
+  }
+
+  .user-form-map {
+    width: 90%;
+    height: 300px;
+    margin-bottom: 20px;
+    background-color: blue;
+  }
 </style>

@@ -1,8 +1,10 @@
 <template>
   <div class="users-container">
-    <h1 class="users-title">Users List</h1>
-    <button @click="createUser">+</button>
-    <input class="users-search" v-model="searchTerm" placeholder="Search..."/>
+    <div class="users-container-header">
+      <h1 class="users-title">Users List <button @click="createUser">+</button></h1>
+
+      <input class="users-search" v-model="searchTerm" placeholder="Search..."/>
+    </div>
     <div class="users-list" v-if="loaded">
       <user-card
           v-for="user in usersData"
@@ -17,8 +19,6 @@
     <div class="alert alert-info" v-if="!loaded">
       Loading data...
     </div>
-
-    <user-form v-if="editMode" :userData="editUserData" :searchTerm="searchTerm" @cancel="editMode = false"></user-form>
   </div>
 </template>
 
@@ -29,7 +29,7 @@ import userSearchQuery from "@/graphql/UserSearchQuery";
 
 export default {
   name: "UsersContainer",
-  components: { UserCard, UserForm },
+  components: { UserCard },
   props: {
   },
   data() {
@@ -45,12 +45,16 @@ export default {
   },
   methods: {
     editUser(user) {
-      this.editMode = true;
-      this.editUserData = user;
+      this.$modal.show(UserForm, { userData: user, searchTerm: this.searchTerm }, {
+        width: "1250px",
+        height: "630px"
+      });
     },
     createUser() {
-      this.editMode = true;
-      this.editUserData = {}
+      this.$modal.show(UserForm, { userData: {}, searchTerm: this.searchTerm }, {
+        width: "1250px",
+        height: "630px"
+      });
     },
     showMoreUsers() {
 
@@ -67,7 +71,7 @@ export default {
         };
       },
       fetchPolicy: "cache-and-network",
-      debounce: 700,
+      debounce: 500,
       result({ data, loading, error }) {
         if (!loading && !error && data) {
           this.usersData = data.users.users;
@@ -84,18 +88,32 @@ export default {
 
 <style scoped>
   .users-container {
+    width:100%;
+  }
 
+  .users-container-header {
+    width: 100%;
+    height: 100px;
+  }
+
+  .users-search {
+    height: 50px;
+    width: 350px;
+    border-radius: 10px;
+    border: 2px solid #ECECEC;
+    font-size: 21px;
+    float:right;
+    padding-left: 10px;
   }
 
   .users-list {
-    float: left;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .users-title {
     float: left;
-  }
-
-  .users-search {
-    float:right;
+    margin: 0;
   }
 </style>

@@ -25,6 +25,7 @@ export default {
 
 body {
   background-color: #F8F8F8;
+  padding: 150px 60px;
 }
 
 #app {
@@ -37,7 +38,7 @@ body {
   max-width: 1350px;
 }
 
-h1, h2, p {
+h1, h2, p, label, input {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
@@ -54,5 +55,10 @@ h2 {
 p {
   font-size: 16px;
   font-weight: 300;
+  color: #3F3F3F;
+}
+
+input {
+  color: black;
 }
 </style>
