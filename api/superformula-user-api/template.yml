@@ -157,6 +157,18 @@ Resources:
         Variables:
           esUrl: !GetAtt ElasticSearchUserDomain.DomainEndpoint
 
+  LocationSearchLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../output
+      Handler: location-search.handler
+      Layers:
+        - !Ref ElasticSearchSyncLambdaLayer
+      Environment:
+        Variables:
+          MAPBOX_ACCESS_TOKEN: 'pk.eyJ1IjoiZmVsaXBlY2FzdHJvc20iLCJhIjoiY2tkY3ExbjJ2MTM5NzM1dDFsNDFuYjl6ZyJ9.g08Eq2XOgURMWhs4lQNzew'
+          MAPBOX_BASE_URL: 'https://api.mapbox.com'
+
   LambdaAccessRole:
     Type: AWS::IAM::Role
     Properties:
@@ -178,6 +190,8 @@ Resources:
                 Resource:
                   - !GetAtt UserSearchLambda.Arn
                   - !Join ['', [!GetAtt UserSearchLambda.Arn, ':*']]
+                  - !GetAtt LocationSearchLambda.Arn
+                  - !Join ['', [!GetAtt LocationSearchLambda.Arn, ':*']]
 
 #GraphQL API
   UserGraphQLApi:
@@ -219,6 +233,16 @@ Resources:
         LambdaFunctionArn: !GetAtt UserSearchLambda.Arn
       ServiceRoleArn: !GetAtt LambdaAccessRole.Arn
 
+  LocationSearchLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+      Name: location_search
+      Type: AWS_LAMBDA
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt LocationSearchLambda.Arn
+      ServiceRoleArn: !GetAtt LambdaAccessRole.Arn
+
 #GraphQL Resolvers
   GetUsersQueryResolver:
     Type: "AWS::AppSync::Resolver"
@@ -228,6 +252,22 @@ Resources:
       TypeName: Query
       FieldName: users
       DataSourceName: !GetAtt UserSearchLambdaDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Invoke",
+          "payload": $utils.toJson($ctx.args)
+        }
+      ResponseMappingTemplate: $util.toJson($ctx.result)
+
+  SearchLocationQueryResolver:
+    Type: "AWS::AppSync::Resolver"
+    DependsOn: UserGraphQLApiSchema
+    Properties:
+      ApiId: !GetAtt UserGraphQLApi.ApiId
+      TypeName: Query
+      FieldName: location
+      DataSourceName: !GetAtt LocationSearchLambdaDataSource.Name
       RequestMappingTemplate: |
         {
           "version": "2017-02-28",

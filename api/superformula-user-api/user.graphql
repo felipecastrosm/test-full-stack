@@ -6,6 +6,7 @@ schema {
 type Query {
     user(id: ID!) : User
     users(filter: UserFilter, limit: Int, nextToken: String): UsersConnection!
+    location(locationInput: LocationInput!): CoordinatesResult
 }
 
 type Mutation {
@@ -29,6 +30,10 @@ type UsersConnection {
     nextToken: String
 }
 
+type CoordinatesResult {
+    coordinates: [Float]!
+}
+
 input UserFilter {
     name: String
 }
@@ -38,4 +43,8 @@ input UserInput {
     dob: AWSDate!
     address: String!
     description: String!
+}
+
+input LocationInput {
+    location: String!
 }
