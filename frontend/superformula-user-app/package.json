@@ -23,6 +23,7 @@
     "vue-apollo": "^3.0.4",
     "vue-js-modal": "^2.0.0-rc.6",
     "vue-mapbox": "^0.4.1",
+    "vue-router": "^3.3.4",
     "vue-toast-notification": "^0.4.1"
   },
   "devDependencies": {

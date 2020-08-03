@@ -41,18 +41,19 @@ export default {
       searchTerm: "",
       editMode: false,
       editUserData: null,
-      nextToken: null
+      nextToken: null,
+      initialToken: this.$route.query?.nextToken
     };
   },
   methods: {
     editUser(user) {
-      this.$modal.show(UserForm, { userData: user, searchTerm: this.searchTerm, nextToken: this.nextToken, limit: firstLoadLimit }, {
+      this.$modal.show(UserForm, { userData: user, searchTerm: this.searchTerm, nextToken: this.initialToken, limit: firstLoadLimit }, {
         width: "1250px",
         height: "630px"
       });
     },
     createUser() {
-      this.$modal.show(UserForm, { userData: {}, searchTerm: this.searchTerm, nextToken: this.nextToken, limit: firstLoadLimit }, {
+      this.$modal.show(UserForm, { userData: {}, searchTerm: this.searchTerm, nextToken: this.initialToken, limit: firstLoadLimit }, {
         width: "1250px",
         height: "630px"
       });
@@ -69,6 +70,7 @@ export default {
         updateQuery: (previousResult, { fetchMoreResult }) => {
           const newUsers = fetchMoreResult.users.users;
           this.nextToken = fetchMoreResult.users.nextToken;
+          this.$router.push({ query: { nextToken: fetchMoreResult.users.nextToken } });
 
           return {
             users: {
@@ -89,7 +91,7 @@ export default {
           filter: {
             name: this.searchTerm
           },
-          nextToken: null,
+          nextToken: this.initialToken,
           limit: firstLoadLimit
         };
       },
