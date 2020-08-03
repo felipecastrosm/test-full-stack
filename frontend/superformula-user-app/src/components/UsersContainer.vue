@@ -13,7 +13,7 @@
           @edit="editUser(user)"
       ></user-card>
     </div>
-    <div v-if="showMoreEnabled" class="show-more-container">
+    <div v-if="nextToken" class="show-more-container">
       <button @click="showMoreUsers">Show more</button>
     </div>
     <div class="alert alert-info" v-if="!loaded">
@@ -27,6 +27,8 @@ import UserCard from "@/components/UserCard";
 import UserForm from "@/components/UserForm";
 import userSearchQuery from "@/graphql/UserSearchQuery";
 
+const firstLoadLimit = 6;
+
 export default {
   name: "UsersContainer",
   components: { UserCard },
@@ -39,25 +41,44 @@ export default {
       searchTerm: "",
       editMode: false,
       editUserData: null,
-      nextToken: null,
-      showMoreEnabled: false
+      nextToken: null
     };
   },
   methods: {
     editUser(user) {
-      this.$modal.show(UserForm, { userData: user, searchTerm: this.searchTerm }, {
+      this.$modal.show(UserForm, { userData: user, searchTerm: this.searchTerm, nextToken: this.nextToken, limit: firstLoadLimit }, {
         width: "1250px",
         height: "630px"
       });
     },
     createUser() {
-      this.$modal.show(UserForm, { userData: {}, searchTerm: this.searchTerm }, {
+      this.$modal.show(UserForm, { userData: {}, searchTerm: this.searchTerm, nextToken: this.nextToken, limit: firstLoadLimit }, {
         width: "1250px",
         height: "630px"
       });
     },
     showMoreUsers() {
+      this.$apollo.queries.users.fetchMore({
+        variables: {
+          filter: {
+            name: this.searchTerm
+          },
+          limit: 3,
+          nextToken: this.nextToken
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          const newUsers = fetchMoreResult.users.users;
+          this.nextToken = fetchMoreResult.users.nextToken;
 
+          return {
+            users: {
+              __typename: previousResult.users.__typename,
+              users: [...previousResult.users.users, ...newUsers],
+              nextToken: fetchMoreResult.users.nextToken
+            }
+          }
+        }
+      })
     }
   },
   apollo: {
@@ -67,7 +88,9 @@ export default {
         return {
           filter: {
             name: this.searchTerm
-          }
+          },
+          nextToken: null,
+          limit: firstLoadLimit
         };
       },
       fetchPolicy: "cache-and-network",
@@ -75,6 +98,7 @@ export default {
       result({ data, loading, error }) {
         if (!loading && !error && data) {
           this.usersData = data.users.users;
+          this.nextToken = data.users.nextToken;
           this.loaded = true;
         }
       },

@@ -120,6 +120,7 @@ export default {
    height: 20px;
    padding: 0;
    border: none;
+   outline: none;
  }
 
  .pencil:hover {
