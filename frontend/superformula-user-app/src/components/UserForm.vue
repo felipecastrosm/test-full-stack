@@ -40,7 +40,7 @@ import UserFormMap from "@/components/UserFormMap";
 
 export default {
   name: "UserForm",
-  components: {UserFormMap },
+  components: { UserFormMap },
   props: {
     userData: {
       id: {
@@ -67,6 +67,14 @@ export default {
     searchTerm: {
       type: String,
       required: true
+    },
+    nextToken: {
+      type: String,
+      required: false
+    },
+    limit: {
+      type: Number,
+      required: true
     }
   },
   data() {
@@ -78,6 +86,9 @@ export default {
   apollo: {
     location: {
       query: locationSearchQuery,
+      skip() {
+        return !this.userData.address
+      },
       variables() {
         return {
           locationInput: {
@@ -88,7 +99,7 @@ export default {
       fetchPolicy: "cache-and-network",
       debounce: 1000,
       result({ data, loading, error }) {
-        if (!loading && !error && data) {
+        if (!loading && !error && data && data.location) {
           this.coordinates = data.location.coordinates;
         }
       },
@@ -115,7 +126,9 @@ export default {
             variables: {
               filter: {
                 name: this.searchTerm
-              }
+              },
+              limit: this.limit,
+              nextToken: null
             }
           });
 
@@ -133,7 +146,9 @@ export default {
             variables: {
               filter: {
                 name: this.searchTerm
-              }
+              },
+              limit: this.limit,
+              nextToken: null
             },
             data
           });
@@ -172,7 +187,9 @@ export default {
             variables: {
               filter: {
                 name: this.searchTerm
-              }
+              },
+              limit: this.limit,
+              nextToken: null
             }
           });
 
@@ -183,7 +200,9 @@ export default {
             variables: {
               filter: {
                 name: this.searchTerm
-              }
+              },
+              limit: this.limit,
+              nextToken: null
             },
             data
           });
