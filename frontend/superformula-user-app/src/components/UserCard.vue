@@ -1,6 +1,6 @@
 <template>
   <div class="user-card">
-    <button id="edit-user" @click="edit">Edit</button>
+    <button class="pencil" id="edit-user" @click="edit"></button>
     <div class="user-image">
       <img src="https://images.unsplash.com/photo-1537815749002-de6a533c64db?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=220&q=80" />
     </div>
@@ -111,5 +111,19 @@ export default {
  .user-info p span {
    color: red;
    display: inline;
+ }
+
+ .pencil {
+   background-image: url('../assets/pencil.png');
+   background-size: 20px 20px;
+   width: 20px;
+   height: 20px;
+   padding: 0;
+   border: none;
+ }
+
+ .pencil:hover {
+   cursor: pointer;
+   background-image: url('../assets/pencil-active.png');
  }
 </style>
