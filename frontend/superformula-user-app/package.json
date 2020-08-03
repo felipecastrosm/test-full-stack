@@ -5,7 +5,13 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "sam:createBucket": "aws s3 mb s3://superformula-user-app-deploy --region=us-east-2",
+    "sam:package": "sam package --output-template-file packaged.yml --s3-bucket superformula-user-app-deploy",
+    "sam:deploy": "sam deploy --template-file packaged.yml --stack-name superformula-user-app --capabilities CAPABILITY_IAM --region us-east-2",
+    "sam:upload": "aws s3 sync ./dist s3://superformula-user-app --acl public-read --delete",
+    "push": "yarn sam:package && yarn sam:deploy && yarn build && yarn sam:upload",
+    "clean": "aws cloudformation delete-stack --stack-name superformula-user-app --region us-east-2 && aws cloudformation wait stack-delete-complete --stack-name superformula-user-app"
   },
   "dependencies": {
     "apollo-cache-inmemory": "^1.6.6",
