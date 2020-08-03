@@ -29,7 +29,9 @@ export default {
     formatDate(dateInput) {
       const date = new Date(dateInput);
 
-      return `${date.getDay()} ${date.getMonth()} ${date.getFullYear()}`
+      const month = date.toLocaleDateString(undefined, {month: "short"});
+
+      return `${date.getDate()} ${month.charAt(0).toUpperCase() + month.slice(1)} ${date.getFullYear()}`
     }
   }
 }
