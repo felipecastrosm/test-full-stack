@@ -1,0 +1,56 @@
+{
+  "name": "superformula-user-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "sam:createBucket": "aws s3 mb s3://superformula-user-app-deploy --region=us-east-2",
+    "sam:package": "sam package --output-template-file packaged.yml --s3-bucket superformula-user-app-deploy",
+    "sam:deploy": "sam deploy --template-file packaged.yml --stack-name superformula-user-app --capabilities CAPABILITY_IAM --region us-east-2",
+    "sam:upload": "aws s3 sync ./dist s3://superformula-user-app --acl public-read --delete",
+    "push": "yarn sam:package && yarn sam:deploy && yarn build && yarn sam:upload",
+    "clean": "aws cloudformation delete-stack --stack-name superformula-user-app --region us-east-2 && aws cloudformation wait stack-delete-complete --stack-name superformula-user-app"
+  },
+  "dependencies": {
+    "apollo-cache-inmemory": "^1.6.6",
+    "aws-appsync": "^4.0.0",
+    "core-js": "^3.6.5",
+    "graphql-tag": "^2.11.0",
+    "mapbox-gl": "^1.11.1",
+    "vue": "^2.6.11",
+    "vue-apollo": "^3.0.4",
+    "vue-js-modal": "^2.0.0-rc.6",
+    "vue-mapbox": "^0.4.1",
+    "vue-toast-notification": "^0.4.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.4.0",
+    "@vue/cli-plugin-eslint": "~4.4.0",
+    "@vue/cli-service": "~4.4.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
