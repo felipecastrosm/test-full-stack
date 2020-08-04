@@ -90,6 +90,8 @@ export default {
     this.tempUserData = {
       ...this.userData
     }
+
+    this.coordinatesLoading = !!this.tempUserData.id;
   },
   apollo: {
     location: {
