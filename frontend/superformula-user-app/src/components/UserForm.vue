@@ -174,7 +174,7 @@ export default {
         }
       }).then(() => {
         this.saveLoading = false;
-        this.$toast.open(`User ${this.tempUserData.name} created`);
+        this.$toast.open({ message: `User ${this.tempUserData.name} created`, position: "top"});
         this.clearForm();
       });
     },
@@ -194,7 +194,7 @@ export default {
         }
       }).then(() => {
         this.saveLoading = false;
-        this.$toast.open(`User ${this.tempUserData.name} updated`);
+        this.$toast.open({ message: `User ${this.tempUserData.name} updated`, position: "top"});
         this.clearForm();
       });
     },
@@ -234,7 +234,7 @@ export default {
         }
       }).then(() => {
         this.removeLoading = false;
-        this.$toast.open(`User ${this.tempUserData.name} deleted`);
+        this.$toast.open({ message: `User ${this.tempUserData.name} deleted`, position: "top"});
         this.clearForm();
       });
     },
@@ -308,6 +308,4 @@ export default {
     border-radius: 10px;
     overflow: hidden;
   }
-
-
 </style>
