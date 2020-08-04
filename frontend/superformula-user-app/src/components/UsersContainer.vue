@@ -1,7 +1,7 @@
 <template>
   <div class="users-container">
     <div class="users-container-header">
-      <h1 class="users-title">Users List <button @click="createUser">+</button></h1>
+      <h1 class="users-title">Users List <button class="secondary-button" @click="createUser" title="Add User">+</button></h1>
 
       <input class="users-search" v-model="searchTerm" placeholder="Search..."/>
     </div>
@@ -14,7 +14,7 @@
       ></user-card>
     </div>
     <div v-if="nextToken" class="show-more-container">
-      <button @click="showMoreUsers">Show more</button>
+      <button @click="showMoreUsers">Load more</button>
     </div>
     <div class="users-list-loading" v-if="!loaded">
       Loading data...
@@ -116,13 +116,14 @@ export default {
   }
 
   .users-container-header {
-    width: 100%;
+    width: 92%;
     height: 100px;
+    padding: 0 4%;
   }
 
   .users-search {
     height: 50px;
-    width: 350px;
+    width: 330px;
     border-radius: 10px;
     border: 2px solid #ECECEC;
     font-size: 21px;
@@ -139,5 +140,19 @@ export default {
   .users-title {
     float: left;
     margin: 0;
+  }
+
+  .users-title button {
+    font-size: 30px;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 26px;
+    margin-left: 10px;
+  }
+
+  .show-more-container button {
+    height: 60px;
+    padding: 0 50px;
   }
 </style>
