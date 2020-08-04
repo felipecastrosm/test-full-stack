@@ -1,3 +1,4 @@
+<script src="__tests__/user-card.spec.js"></script>
 <template>
   <div class="user-card">
     <button class="pencil" id="edit-user" @click="edit"></button>
@@ -14,6 +15,8 @@
 </template>
 
 <script>
+import { shortStringFormat } from "../utils/date";
+
 export default {
   name: 'UserCard',
   props: {
@@ -26,13 +29,7 @@ export default {
     edit() {
       this.$emit("edit");
     },
-    formatDate(dateInput) {
-      const date = new Date(dateInput);
-
-      const month = date.toLocaleDateString(undefined, {month: "short"});
-
-      return `${date.getDate()} ${month.charAt(0).toUpperCase() + month.slice(1)} ${date.getFullYear()}`
-    }
+    formatDate(dateInput) { return shortStringFormat(dateInput); }
   }
 }
 </script>

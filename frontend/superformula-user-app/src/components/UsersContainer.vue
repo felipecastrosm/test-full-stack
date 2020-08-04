@@ -16,7 +16,7 @@
     <div v-if="nextToken" class="show-more-container">
       <button @click="showMoreUsers">Show more</button>
     </div>
-    <div class="alert alert-info" v-if="!loaded">
+    <div class="users-list-loading" v-if="!loaded">
       Loading data...
     </div>
   </div>
