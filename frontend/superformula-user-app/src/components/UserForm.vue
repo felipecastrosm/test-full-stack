@@ -4,7 +4,7 @@
     <h1 v-if="!userData.id">Create User</h1>
     <div class="user-form-left">
       <div class="user-form-map">
-        <user-form-map :coordinates="coordinates"></user-form-map>
+        <user-form-map :coordinates="coordinates" :coordinatesLoading="coordinatesLoading"></user-form-map>
       </div>
       <button class="secondary-button" v-if="userData.id" @click="deleteUser">Remove <img class="loading-spinner" v-if="removeLoading" src="../assets/spinner.gif"/></button>
     </div>
@@ -79,10 +79,10 @@ export default {
   },
   data() {
     return {
-      loaded: false,
       coordinates: [],
       removeLoading: false,
-      saveLoading: false
+      saveLoading: false,
+      coordinatesLoading: true
     };
   },
   apollo: {
@@ -101,8 +101,15 @@ export default {
       fetchPolicy: "cache-and-network",
       debounce: 1000,
       result({ data, loading, error }) {
-        if (!loading && !error && data && data.location) {
-          this.coordinates = data.location.coordinates;
+        this.coordinatesLoading = loading;
+
+        if (!loading && !error && data) {
+          if(data.location) {
+            this.coordinates = data.location.coordinates;
+          }
+          else {
+            this.coordinates = [];
+          }
         }
       },
       error(error) {
