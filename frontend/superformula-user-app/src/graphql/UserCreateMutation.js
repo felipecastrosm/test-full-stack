@@ -8,6 +8,7 @@ const userCreateMutation = gql`
             dob
             address
             description
+            imageUrl
             createdAt
             updatedAt
         }
