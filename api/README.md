@@ -41,7 +41,14 @@ aws configure
 ```
 
 #### AWS Deployment
-To deploy the API to an AWS account, just run the following command:
+To deploy the API to an AWS account, first ensure you have a `S3` bucket ready by running:
+
+```bash
+npm run awss3:init
+```
+
+Then just run the following command to have `AWS SAM` create the complete infrastructure
+and configurations for you
 
 ```bash
 npm run push
@@ -53,4 +60,12 @@ To delete the application and all of its resources from AWS, run the following:
 
 ```bash
 npm run clean
+```
+
+#### Unit Tests
+
+To run the Unit Tests using `Jest`
+
+```bash
+npm run test
 ```
