@@ -3,16 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "jest",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
-    "sam:createBucket": "aws s3 mb s3://superformula-user-app-deploy --region=us-east-2",
-    "sam:package": "sam package --output-template-file packaged.yml --s3-bucket superformula-user-app-deploy",
-    "sam:deploy": "sam deploy --no-fail-on-empty-changeset --template-file packaged.yml --stack-name superformula-user-app --capabilities CAPABILITY_IAM --region us-east-2",
-    "sam:upload": "aws s3 sync ./dist s3://superformula-user-app --acl public-read --delete",
+    "clean": "aws cloudformation delete-stack --stack-name superformula-user-app --region us-east-2 && aws cloudformation wait stack-delete-complete --stack-name superformula-user-app",
     "push": "yarn sam:package && yarn sam:deploy && yarn build && yarn sam:upload",
-    "clean": "aws cloudformation delete-stack --stack-name superformula-user-app --region us-east-2 && aws cloudformation wait stack-delete-complete --stack-name superformula-user-app"
+    "sam:createBucket": "aws s3 mb s3://superformula-user-app-deploy --region=us-east-2",
+    "sam:deploy": "sam deploy --no-fail-on-empty-changeset --template-file packaged.yml --stack-name superformula-user-app --capabilities CAPABILITY_IAM --region us-east-2",
+    "sam:package": "sam package --output-template-file packaged.yml --s3-bucket superformula-user-app-deploy",
+    "sam:upload": "aws s3 sync ./dist s3://superformula-user-app --acl public-read --delete",
+    "test": "jest"
   },
   "dependencies": {
     "@vue/cli-plugin-unit-jest": "^4.4.6",
@@ -22,6 +23,7 @@
     "core-js": "^3.6.5",
     "graphql-tag": "^2.11.0",
     "mapbox-gl": "^1.11.1",
+    "uuid": "^8.3.0",
     "vue": "^2.6.11",
     "vue-apollo": "^3.0.4",
     "vue-js-modal": "^2.0.0-rc.6",
@@ -30,6 +32,7 @@
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.4.0",
+    "@vue/cli-plugin-e2e-cypress": "~4.4.0",
     "@vue/cli-plugin-eslint": "~4.4.0",
     "@vue/cli-service": "~4.4.0",
     "babel-eslint": "^10.1.0",

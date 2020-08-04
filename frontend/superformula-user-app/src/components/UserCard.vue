@@ -1,7 +1,7 @@
 <script src="__tests__/user-card.spec.js"></script>
 <template>
   <div class="user-card">
-    <button class="pencil" id="edit-user" @click="edit"></button>
+    <button class="pencil" @click="edit"></button>
     <div class="user-image">
       <img src="https://images.unsplash.com/photo-1537815749002-de6a533c64db?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=220&q=80" />
     </div>
