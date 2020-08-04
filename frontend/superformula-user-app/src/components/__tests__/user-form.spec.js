@@ -125,7 +125,7 @@ describe('User Form', () => {
     });
 
     test('calls createUser when save button is clicked and no user id is present', async () => {
-        const mutate = jest.fn();
+        const mutate = jest.fn().mockResolvedValue({});
 
         const userInfo = {
             name: "sample_name",
@@ -158,7 +158,7 @@ describe('User Form', () => {
     });
 
     test('calls updateUser when save button is clicked and user id is present', async () => {
-        const mutate = jest.fn()
+        const mutate = jest.fn().mockResolvedValue({});
 
         const userInfo = {
             name: "sample_name",
@@ -195,7 +195,7 @@ describe('User Form', () => {
     });
 
     test('calls deleteUser when remove button is clicked', async () => {
-        const mutate = jest.fn()
+        const mutate = jest.fn().mockResolvedValue({});
 
         const component = getMountedComponent({
             userData: {

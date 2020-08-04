@@ -65,7 +65,8 @@ describe('Users Container', () => {
     test('does not render the loading div if content is already loaded', async () => {
         const component = getMountedComponent({}, () => {
             return {
-                loaded: true
+                loaded: true,
+                usersData: [{}]
             };
         });
 
@@ -81,7 +82,8 @@ describe('Users Container', () => {
     test('renders the users list if content is loaded', async () => {
         const component = getMountedComponent({}, () => {
             return {
-                loaded: true
+                loaded: true,
+                usersData: [{}]
             };
         });
 
