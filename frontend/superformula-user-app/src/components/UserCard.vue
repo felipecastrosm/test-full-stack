@@ -59,6 +59,7 @@ export default {
 
  .user-card:hover .user-info p {
    display: block;
+   margin-bottom: 0;
  }
 
  .user-card button {
@@ -77,11 +78,20 @@ export default {
    margin-top: 25px;
  }
 
+ .user-card:hover .user-name {
+   width: 185px;
+ }
+
  .user-name {
    font-size: 21px;
    text-align: left;
    margin-left: 20px;
    margin-bottom: 0;
+   white-space: nowrap;
+   height: 21px;
+   width: 305px;
+   overflow: hidden;
+   text-overflow: ellipsis;
  }
 
  .user-description {
@@ -91,6 +101,11 @@ export default {
    text-align: left;
    margin-left: 20px;
    margin-top: 5px;
+   white-space: nowrap;
+   height: 21px;
+   width: 300px;
+   overflow: hidden;
+   text-overflow: ellipsis;
  }
 
  .user-info {
