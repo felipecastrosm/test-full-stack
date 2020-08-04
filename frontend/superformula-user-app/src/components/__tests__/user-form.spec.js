@@ -1,5 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import UserForm from '../UserForm';
+import Unsplash from "unsplash-js";
+
+jest.mock("unsplash-js");
 
 jest.mock('mapbox-gl/dist/mapbox-gl', () => ({
     GeolocateControl: jest.fn(),
@@ -127,10 +130,21 @@ describe('User Form', () => {
     test('calls createUser when save button is clicked and no user id is present', async () => {
         const mutate = jest.fn().mockResolvedValue({});
 
+        Unsplash.prototype.photos = {
+            getRandomPhoto: jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue({
+                    urls: {
+                        small: "sample_url"
+                    }
+                })
+            })
+        };
+
         const userInfo = {
             name: "sample_name",
             dob: "sample_dob",
             address: "sample_address",
+            imageUrl: "sample_url",
             description: "sample_description"
         };
 
@@ -151,6 +165,12 @@ describe('User Form', () => {
         });
 
         await component.find(".user-form-save").trigger("click");
+
+        //I know this looks weird, but we have 3 awaits inside the createUser method,
+        // so we need to wait for 3 ticks for all promises to be resolved
+        await component.vm.$nextTick();
+        await component.vm.$nextTick();
+        await component.vm.$nextTick();
 
         expect(mutate).toBeCalled();
         expect(getMockedMutationName(mutate)).toBe("createUser");

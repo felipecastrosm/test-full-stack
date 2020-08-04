@@ -21,6 +21,7 @@ type User {
     dob: AWSDate!
     address: String!
     description: String!
+    imageUrl: String
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime
 }
@@ -43,6 +44,7 @@ input UserInput {
     dob: AWSDate!
     address: String!
     description: String!
+    imageUrl: String
 }
 
 input LocationInput {

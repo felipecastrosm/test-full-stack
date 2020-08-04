@@ -37,6 +37,9 @@ import userDeleteMutation from "@/graphql/UserDeleteMutation";
 import userSearchQuery from "@/graphql/UserSearchQuery";
 import locationSearchQuery from "@/graphql/LocationSearchQuery";
 import UserFormMap from "@/components/UserFormMap";
+import Unsplash from 'unsplash-js';
+
+const unsplash = new Unsplash({ accessKey: "U9B9Ix6gUmPg-JD5dbAr93LvQAK0Ye-nO7217C-HSvA" });
 
 export default {
   name: "UserForm",
@@ -149,21 +152,24 @@ export default {
 
       return valid;
     },
-    createUser() {
+    async createUser() {
       if(!this.validateForm()) {
         return;
       }
 
       this.saveLoading = true;
 
-      this.$apollo.mutate({
+      const imageUrl = (await (await unsplash.photos.getRandomPhoto({ collections: ["8470962", "4389261", "4963498"], orientation: "landscape" })).json()).urls.small
+
+      await this.$apollo.mutate({
         mutation: userCreateMutation,
         variables: {
           user: {
             name: this.tempUserData.name,
             dob: this.tempUserData.dob ?? "1988-11-08",
             address: this.tempUserData.address,
-            description: this.tempUserData.description
+            description: this.tempUserData.description,
+            imageUrl: imageUrl
           }
         },
         update: (store, { data: { createUser } }) => {
@@ -199,11 +205,11 @@ export default {
             data
           });
         }
-      }).then(() => {
-        this.saveLoading = false;
-        this.$toast.open({ message: `User ${this.tempUserData.name} created`, position: "top"});
-        this.clearForm();
       });
+
+      this.saveLoading = false;
+      this.$toast.open({ message: `User ${this.tempUserData.name} created`, position: "top"});
+      this.clearForm();
     },
     updateUser() {
       if(!this.validateForm()) {

@@ -3,7 +3,7 @@
   <div class="user-card">
     <button class="pencil" @click="edit"></button>
     <div class="user-image">
-      <img src="https://images.unsplash.com/photo-1537815749002-de6a533c64db?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=220&q=80" />
+      <img :src="user.imageUrl" />
     </div>
     <div class="user-info">
       <h2 class="user-name">{{ user.name }}</h2>
@@ -71,11 +71,16 @@ export default {
 
  .user-image {
    display: inline-block;
-   width: 180px;
-   height: 180px;
+   width: 170px;
+   height: 170px;
    overflow: hidden;
    border-radius: 50%;
    margin-top: 25px;
+ }
+
+ .user-image img {
+   height: 170px;
+   margin-left: -25%;
  }
 
  .user-card:hover .user-name {

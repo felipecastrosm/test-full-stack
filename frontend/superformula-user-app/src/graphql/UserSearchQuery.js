@@ -10,6 +10,7 @@ const userSearchQuery = gql`
                 dob
                 address
                 description
+                imageUrl
                 createdAt
                 updatedAt
             }

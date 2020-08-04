@@ -21,6 +21,7 @@ type User = {
     dob: string
     address: string
     description: string
+    imageUrl: string
     createdAt: string
     updatedAt: string
 }
