@@ -38,7 +38,7 @@ body {
   max-width: 1350px;
 }
 
-h1, h2, p, label, input, button {
+h1, h2, p, label, input, button, span {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
