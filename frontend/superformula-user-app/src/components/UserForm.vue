@@ -1,27 +1,27 @@
 <template>
   <div class="user-form-container">
-    <h1 v-if="userData.id">Edit User</h1>
-    <h1 v-if="!userData.id">Create User</h1>
+    <h1 v-if="tempUserData.id">Edit User</h1>
+    <h1 v-if="!tempUserData.id">Create User</h1>
     <div class="user-form-left">
       <div class="user-form-map">
         <user-form-map :coordinates="coordinates" :coordinatesLoading="coordinatesLoading"></user-form-map>
       </div>
-      <button class="secondary-button" v-if="userData.id" @click="deleteUser">Remove <img class="loading-spinner" v-if="removeLoading" src="../assets/spinner.gif"/></button>
+      <button class="secondary-button" v-if="tempUserData.id" @click="deleteUser">Remove <img class="loading-spinner" v-if="removeLoading" src="../assets/spinner.gif"/></button>
     </div>
     <div class="user-form-data">
       <form method="POST" @submit.prevent>
         <label>Name</label>
-        <input type="text" name="name" v-model="userData.name">
+        <input type="text" name="name" v-model="tempUserData.name">
 
         <label>Address</label>
-        <input type="text" name="address" v-model="userData.address">
+        <input type="text" name="address" v-model="tempUserData.address">
 
         <label>Description</label>
-        <input type="text" name="description" v-model="userData.description">
+        <input type="text" name="description" v-model="tempUserData.description">
 
         <div class="user-form-buttons">
-          <button class="user-form-save" v-if="!userData.id" @click="createUser">Save <img class="loading-spinner" v-if="saveLoading" src="../assets/spinner.gif"/></button>
-          <button class="user-form-save" v-if="userData.id" @click="updateUser">Save <img class="loading-spinner" v-if="saveLoading" src="../assets/spinner.gif"/></button>
+          <button class="user-form-save" v-if="!tempUserData.id" @click="createUser">Save <img class="loading-spinner" v-if="saveLoading" src="../assets/spinner.gif"/></button>
+          <button class="user-form-save" v-if="tempUserData.id" @click="updateUser">Save <img class="loading-spinner" v-if="saveLoading" src="../assets/spinner.gif"/></button>
           <button class="user-form-cancel secondary-button" @click="clearForm">Cancel</button>
         </div>
       </form>
@@ -82,19 +82,25 @@ export default {
       coordinates: [],
       removeLoading: false,
       saveLoading: false,
-      coordinatesLoading: true
+      coordinatesLoading: true,
+      tempUserData: {}
     };
+  },
+  created() {
+    this.tempUserData = {
+      ...this.userData
+    }
   },
   apollo: {
     location: {
       query: locationSearchQuery,
       skip() {
-        return !this.userData.address
+        return !this.tempUserData.address
       },
       variables() {
         return {
           locationInput: {
-            location: this.userData.address
+            location: this.tempUserData.address
           }
         };
       },
@@ -125,10 +131,10 @@ export default {
         mutation: userCreateMutation,
         variables: {
           user: {
-            name: this.userData.name,
-            dob: this.userData.dob ?? "1988-11-08",
-            address: this.userData.address,
-            description: this.userData.description
+            name: this.tempUserData.name,
+            dob: this.tempUserData.dob ?? "1988-11-08",
+            address: this.tempUserData.address,
+            description: this.tempUserData.description
           }
         },
         update: (store, { data: { createUser } }) => {
@@ -166,7 +172,7 @@ export default {
         }
       }).then(() => {
         this.saveLoading = false;
-        this.$toast.open(`User ${this.userData.name} created`);
+        this.$toast.open(`User ${this.tempUserData.name} created`);
         this.clearForm();
       });
     },
@@ -176,17 +182,17 @@ export default {
       this.$apollo.mutate({
         mutation: userUpdateMutation,
         variables: {
-          id: this.userData.id,
+          id: this.tempUserData.id,
           user: {
-            name: this.userData.name,
-            dob: this.userData.dob,
-            address: this.userData.address,
-            description: this.userData.description
+            name: this.tempUserData.name,
+            dob: this.tempUserData.dob,
+            address: this.tempUserData.address,
+            description: this.tempUserData.description
           }
         }
       }).then(() => {
         this.saveLoading = false;
-        this.$toast.open(`User ${this.userData.name} updated`);
+        this.$toast.open(`User ${this.tempUserData.name} updated`);
         this.clearForm();
       });
     },
@@ -196,7 +202,7 @@ export default {
       this.$apollo.mutate({
         mutation: userDeleteMutation,
         variables: {
-          id: this.userData.id
+          id: this.tempUserData.id
         },
         update: (store, { data: { deleteUser } }) => {
           const data = store.readQuery({
@@ -226,7 +232,7 @@ export default {
         }
       }).then(() => {
         this.removeLoading = false;
-        this.$toast.open(`User ${this.userData.name} deleted`);
+        this.$toast.open(`User ${this.tempUserData.name} deleted`);
         this.clearForm();
       });
     },

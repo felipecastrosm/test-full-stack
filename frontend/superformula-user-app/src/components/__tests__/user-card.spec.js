@@ -67,7 +67,7 @@ describe('User Card', () => {
             user: {}
         });
 
-        await component.find("#edit-user").trigger("click");
+        await component.find(".user-card button").trigger("click");
 
         expect(component.emitted("edit")).toBeTruthy();
     });
