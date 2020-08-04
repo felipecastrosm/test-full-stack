@@ -283,41 +283,5 @@ export default {
     overflow: hidden;
   }
 
-  button {
-    color: black;
-    font-weight: bold;
-    background: #FFFFFF;
-    border-radius: 5px;
-    border: 2px solid #E6E6E6;
-    outline: none;
-  }
 
-  button:hover {
-    border: 2px solid #999999;
-  }
-
-  button:focus {
-    border: 2px solid #808080;
-  }
-
-  button:disabled {
-    border: 2px solid #E6E6E6;
-  }
-
-  .secondary-button {
-    background: #F8F8F8;
-    border-color: #E0E0E0;
-  }
-
-  .secondary-button:hover {
-    border-color: #959595;
-  }
-
-  .secondary-button:focus {
-    border-color: #7C7C7C;
-  }
-
-  .secondary-button:disabled {
-    border-color: #E0E0E0;
-  }
 </style>
