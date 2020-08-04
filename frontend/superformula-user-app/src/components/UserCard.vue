@@ -99,6 +99,7 @@ export default {
 
  .user-info h2 {
    float:left;
+   text-transform: uppercase;
  }
 
  .user-info p {
@@ -108,7 +109,7 @@ export default {
  }
 
  .user-info p span {
-   color: red;
+   color: #AF1E1E;
    display: inline;
  }
 
