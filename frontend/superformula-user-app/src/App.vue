@@ -111,4 +111,9 @@ button:disabled {
 .secondary-button:disabled {
   border-color: #E0E0E0;
 }
+
+.toast p {
+  color: white;
+  font-size: 25px;
+}
 </style>
