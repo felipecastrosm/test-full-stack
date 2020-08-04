@@ -5,7 +5,7 @@
 
       <input class="users-search" v-model="searchTerm" placeholder="Search..."/>
     </div>
-    <div class="users-list" v-if="loaded">
+    <div class="users-list" v-if="loaded && usersData.length > 0">
       <user-card
           v-for="user in usersData"
           :key="user.id"
@@ -13,11 +13,14 @@
           @edit="editUser(user)"
       ></user-card>
     </div>
+    <div class="users-list" v-if="loaded && usersData == 0">
+      <span class="users-list-empty">ooops, nothing to show...</span>
+    </div>
     <div v-if="nextToken" class="show-more-container">
-      <button @click="showMoreUsers">Load more</button>
+      <button @click="showMoreUsers">Load more <img class="loading-spinner" v-if="showMoreLoading" src="../assets/spinner.gif"/></button>
     </div>
     <div class="users-list-loading" v-if="!loaded">
-      Loading data...
+      <img src="../assets/spinner.gif" />
     </div>
   </div>
 </template>
@@ -41,7 +44,8 @@ export default {
       searchTerm: "",
       editMode: false,
       editUserData: null,
-      nextToken: null
+      nextToken: null,
+      showMoreLoading: false
     };
   },
   methods: {
@@ -58,6 +62,8 @@ export default {
       });
     },
     showMoreUsers() {
+      this.showMoreLoading = true;
+
       this.$apollo.queries.users.fetchMore({
         variables: {
           filter: {
@@ -69,6 +75,8 @@ export default {
         updateQuery: (previousResult, { fetchMoreResult }) => {
           const newUsers = fetchMoreResult.users.users;
           this.nextToken = fetchMoreResult.users.nextToken;
+
+          this.showMoreLoading = false;
 
           return {
             users: {
@@ -94,7 +102,7 @@ export default {
         };
       },
       fetchPolicy: "cache-and-network",
-      debounce: 500,
+      debounce: 100,
       result({ data, loading, error }) {
         if (!loading && !error && data) {
           this.usersData = data.users.users;
@@ -154,5 +162,15 @@ export default {
   .show-more-container button {
     height: 60px;
     padding: 0 50px;
+    position: relative;
+  }
+
+  .show-more-container button img {
+    top: 4px;
+  }
+
+  .users-list-empty {
+    font-size: 40px;
+    margin-top: 100px;
   }
 </style>
