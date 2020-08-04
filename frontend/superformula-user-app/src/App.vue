@@ -63,6 +63,13 @@ input {
   outline: none;
 }
 
+button .loading-spinner {
+  height: 50px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
 button {
   font-size: 17px;
   font-weight: 600;
@@ -72,6 +79,7 @@ button {
   border-radius: 5px;
   border: 2px solid #E6E6E6;
   outline: none;
+  position: relative;
 }
 
 button:hover {

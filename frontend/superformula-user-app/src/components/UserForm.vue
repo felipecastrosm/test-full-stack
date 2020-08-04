@@ -6,7 +6,7 @@
       <div class="user-form-map">
         <user-form-map :coordinates="coordinates"></user-form-map>
       </div>
-      <button class="secondary-button" v-if="userData.id" @click="deleteUser">Remove</button>
+      <button class="secondary-button" v-if="userData.id" @click="deleteUser">Remove <img class="loading-spinner" v-if="removeLoading" src="../assets/spinner.gif"/></button>
     </div>
     <div class="user-form-data">
       <form method="POST" @submit.prevent>
@@ -20,8 +20,8 @@
         <input type="text" name="description" v-model="userData.description">
 
         <div class="user-form-buttons">
-          <button class="user-form-save" v-if="!userData.id" @click="createUser">Save</button>
-          <button class="user-form-save" v-if="userData.id" @click="updateUser">Save</button>
+          <button class="user-form-save" v-if="!userData.id" @click="createUser">Save <img class="loading-spinner" v-if="saveLoading" src="../assets/spinner.gif"/></button>
+          <button class="user-form-save" v-if="userData.id" @click="updateUser">Save <img class="loading-spinner" v-if="saveLoading" src="../assets/spinner.gif"/></button>
           <button class="user-form-cancel secondary-button" @click="clearForm">Cancel</button>
         </div>
       </form>
@@ -80,7 +80,9 @@ export default {
   data() {
     return {
       loaded: false,
-      coordinates: []
+      coordinates: [],
+      removeLoading: false,
+      saveLoading: false
     };
   },
   apollo: {
@@ -110,6 +112,8 @@ export default {
   },
   methods: {
     createUser() {
+      this.saveLoading = true;
+
       this.$apollo.mutate({
         mutation: userCreateMutation,
         variables: {
@@ -153,12 +157,15 @@ export default {
             data
           });
         }
+      }).then(() => {
+        this.saveLoading = false;
+        this.$toast.open(`User ${this.userData.name} created`);
+        this.clearForm();
       });
-
-      this.$toast.open(`User ${this.userData.name} created`);
-      this.clearForm();
     },
     updateUser() {
+      this.saveLoading = true;
+
       this.$apollo.mutate({
         mutation: userUpdateMutation,
         variables: {
@@ -170,12 +177,15 @@ export default {
             description: this.userData.description
           }
         }
+      }).then(() => {
+        this.saveLoading = false;
+        this.$toast.open(`User ${this.userData.name} updated`);
+        this.clearForm();
       });
-
-      this.$toast.open(`User ${this.userData.name} updated`);
-      this.clearForm();
     },
     deleteUser() {
+      this.removeLoading = true;
+
       this.$apollo.mutate({
         mutation: userDeleteMutation,
         variables: {
@@ -207,10 +217,11 @@ export default {
             data
           });
         }
+      }).then(() => {
+        this.removeLoading = false;
+        this.$toast.open(`User ${this.userData.name} deleted`);
+        this.clearForm();
       });
-
-      this.$toast.open(`User ${this.userData.name} deleted`);
-      this.clearForm();
     },
     clearForm() {
       this.$modal.hideAll();

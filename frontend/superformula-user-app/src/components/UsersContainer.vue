@@ -17,7 +17,7 @@
       <span class="users-list-empty">ooops, nothing to show...</span>
     </div>
     <div v-if="nextToken" class="show-more-container">
-      <button @click="showMoreUsers">Load more</button>
+      <button @click="showMoreUsers">Load more <img class="loading-spinner" v-if="showMoreLoading" src="../assets/spinner.gif"/></button>
     </div>
     <div class="users-list-loading" v-if="!loaded">
       <img src="../assets/spinner.gif" />
@@ -44,7 +44,8 @@ export default {
       searchTerm: "",
       editMode: false,
       editUserData: null,
-      nextToken: null
+      nextToken: null,
+      showMoreLoading: false
     };
   },
   methods: {
@@ -61,6 +62,8 @@ export default {
       });
     },
     showMoreUsers() {
+      this.showMoreLoading = true;
+
       this.$apollo.queries.users.fetchMore({
         variables: {
           filter: {
@@ -72,6 +75,8 @@ export default {
         updateQuery: (previousResult, { fetchMoreResult }) => {
           const newUsers = fetchMoreResult.users.users;
           this.nextToken = fetchMoreResult.users.nextToken;
+
+          this.showMoreLoading = false;
 
           return {
             users: {
@@ -157,6 +162,11 @@ export default {
   .show-more-container button {
     height: 60px;
     padding: 0 50px;
+    position: relative;
+  }
+
+  .show-more-container button img {
+    top: 4px;
   }
 
   .users-list-empty {
