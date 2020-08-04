@@ -11,13 +11,13 @@
     <div class="user-form-data">
       <form method="POST" @submit.prevent>
         <label>Name</label>
-        <input type="text" name="name" v-model="tempUserData.name">
+        <input :class="{'user-form-input-invalid': nameMissing && !tempUserData.name}" type="text" name="name" v-model="tempUserData.name">
 
         <label>Address</label>
-        <input type="text" name="address" v-model="tempUserData.address">
+        <input :class="{'user-form-input-invalid': addressMissing && !tempUserData.address}" type="text" name="address" v-model="tempUserData.address">
 
         <label>Description</label>
-        <input type="text" name="description" v-model="tempUserData.description">
+        <input :class="{'user-form-input-invalid': descriptionMissing && !tempUserData.description}" type="text" name="description" v-model="tempUserData.description">
 
         <div class="user-form-buttons">
           <button class="user-form-save" v-if="!tempUserData.id" @click="createUser">Save <img class="loading-spinner" v-if="saveLoading" src="../assets/spinner.gif"/></button>
@@ -83,7 +83,10 @@ export default {
       removeLoading: false,
       saveLoading: false,
       coordinatesLoading: true,
-      tempUserData: {}
+      tempUserData: {},
+      nameMissing: false,
+      addressMissing: false,
+      descriptionMissing: false
     };
   },
   created() {
@@ -126,7 +129,31 @@ export default {
     }
   },
   methods: {
+    validateForm() {
+      let valid = true;
+
+      if(!this.tempUserData.name) {
+        this.nameMissing = true;
+        valid = false;
+      }
+
+      if(!this.tempUserData.address) {
+        this.addressMissing = true;
+        valid = false;
+      }
+
+      if(!this.tempUserData.description) {
+        this.descriptionMissing = true;
+        valid = false;
+      }
+
+      return valid;
+    },
     createUser() {
+      if(!this.validateForm()) {
+        return;
+      }
+
       this.saveLoading = true;
 
       this.$apollo.mutate({
@@ -179,6 +206,10 @@ export default {
       });
     },
     updateUser() {
+      if(!this.validateForm()) {
+        return;
+      }
+
       this.saveLoading = true;
 
       this.$apollo.mutate({
@@ -307,5 +338,9 @@ export default {
     margin-bottom: 20px;
     border-radius: 10px;
     overflow: hidden;
+  }
+
+  .user-form-data input.user-form-input-invalid {
+    border-color: red;
   }
 </style>
