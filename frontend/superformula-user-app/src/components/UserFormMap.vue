@@ -29,9 +29,8 @@ export default {
   },
   data() {
     return {
-      accessToken: "pk.eyJ1IjoiZmVsaXBlY2FzdHJvc20iLCJhIjoiY2tkY3ExbjJ2MTM5NzM1dDFsNDFuYjl6ZyJ9.g08Eq2XOgURMWhs4lQNzew",//process.env.MAPBOX_ACCESS_TOKEN,
+      accessToken: "pk.eyJ1IjoiZmVsaXBlY2FzdHJvc20iLCJhIjoiY2tkY3ExbjJ2MTM5NzM1dDFsNDFuYjl6ZyJ9.g08Eq2XOgURMWhs4lQNzew",
       mapStyle: "mapbox://styles/mapbox/streets-v11",
-      //coordinates: [-43.4487,-23.01312],//[-43.4487,-23.01312]
       zoom: 12.5
     };
   },
