@@ -38,8 +38,9 @@ import userSearchQuery from "@/graphql/UserSearchQuery";
 import locationSearchQuery from "@/graphql/LocationSearchQuery";
 import UserFormMap from "@/components/UserFormMap";
 import Unsplash from 'unsplash-js';
+import { unsplashAccessKey } from "../config";
 
-const unsplash = new Unsplash({ accessKey: "U9B9Ix6gUmPg-JD5dbAr93LvQAK0Ye-nO7217C-HSvA" });
+const unsplash = new Unsplash({ accessKey: unsplashAccessKey });
 
 export default {
   name: "UserForm",

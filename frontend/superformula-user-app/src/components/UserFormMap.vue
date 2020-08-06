@@ -11,6 +11,7 @@
 <script>
 import Mapbox from "mapbox-gl";
 import { MglMap, MglMarker } from "vue-mapbox";
+import { mapboxAccessToken } from "../config";
 
 export default {
   name: "UserFormMap",
@@ -29,7 +30,7 @@ export default {
   },
   data() {
     return {
-      accessToken: "pk.eyJ1IjoiZmVsaXBlY2FzdHJvc20iLCJhIjoiY2tkY3ExbjJ2MTM5NzM1dDFsNDFuYjl6ZyJ9.g08Eq2XOgURMWhs4lQNzew",
+      accessToken: mapboxAccessToken,
       mapStyle: "mapbox://styles/mapbox/streets-v11",
       zoom: 12.5
     };
