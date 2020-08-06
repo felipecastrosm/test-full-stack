@@ -1,43 +1,46 @@
 # Superformula User App
 
-##### Project setup
+This is the web application built with `Vue` that uses `AppSync's GraphQL API` to provide
+a basic frontend for the CRUD functionality.
+
+Maps are shown using `MapBox`'s map service, and avatars are randomly loaded from `Unsplash`
+
+For local execution, feel free to rename the `.env.example` to `.env.local` to use the 
+live API and external services' access keys and information.
+
+##### Setup the project and install dependencies
 ```
 yarn install
 ```
 
-##### Compiles and hot-reloads for development
+##### Compile and run locally with hot-reloads
 ```
 yarn serve
 ```
 
-##### Compiles and minifies for production
+##### Compile and minify resources for production
 ```
 yarn build
 ```
 
-##### Lints and fixes files
-```
-yarn lint
-```
-
-##### Unit tests
+##### Run Unit tests
 ```
 yarn test
 ```
 
-##### E2E tests
+##### Run E2E tests
 ```
 cypress run
 ```
 
 ### Deployment
 
-##### Initial S3 Bucket creation
+##### Create initial S3 Bucket
 ```
 yarn sam:createBucket
 ```
 
-##### Application deployment
+##### Deploy Application
 ```
 yarn push
 ```

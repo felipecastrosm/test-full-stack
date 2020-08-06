@@ -38,8 +38,9 @@ import userSearchQuery from "@/graphql/UserSearchQuery";
 import locationSearchQuery from "@/graphql/LocationSearchQuery";
 import UserFormMap from "@/components/UserFormMap";
 import Unsplash from 'unsplash-js';
+import { unsplashAccessKey } from "../config";
 
-const unsplash = new Unsplash({ accessKey: "U9B9Ix6gUmPg-JD5dbAr93LvQAK0Ye-nO7217C-HSvA" });
+const unsplash = new Unsplash({ accessKey: unsplashAccessKey });
 
 export default {
   name: "UserForm",
@@ -166,7 +167,7 @@ export default {
         variables: {
           user: {
             name: this.tempUserData.name,
-            dob: this.tempUserData.dob ?? "1988-11-08",
+            dob: this.tempUserData.dob,
             address: this.tempUserData.address,
             description: this.tempUserData.description,
             imageUrl: imageUrl
