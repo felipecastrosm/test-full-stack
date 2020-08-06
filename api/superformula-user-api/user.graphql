@@ -18,7 +18,7 @@ type Mutation {
 type User {
     id: ID!
     name: String!
-    dob: AWSDate!
+    dob: AWSDate
     address: String!
     description: String!
     imageUrl: String
@@ -41,7 +41,7 @@ input UserFilter {
 
 input UserInput {
     name: String!
-    dob: AWSDate!
+    dob: AWSDate
     address: String!
     description: String!
     imageUrl: String

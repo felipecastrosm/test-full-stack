@@ -167,7 +167,7 @@ export default {
         variables: {
           user: {
             name: this.tempUserData.name,
-            dob: this.tempUserData.dob ?? "1988-11-08",
+            dob: this.tempUserData.dob,
             address: this.tempUserData.address,
             description: this.tempUserData.description,
             imageUrl: imageUrl
