@@ -4,7 +4,7 @@ This is the User API project. A live demo can be found [here](https://w5q2e6gfkf
 
 Just use the `API Key` below:
 
-`da2-js4bhn7fw5eh3fivpgmmxyveaa`
+`da2-6bxyui2sfzebzahjarx73sy7jy`
 
 ##### Structure
 * [`template.yml`](template.yml) - AWS Serverless Application Model template that defines all necessary infrastructure
